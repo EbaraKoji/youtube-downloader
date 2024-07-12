@@ -13,7 +13,12 @@ def download_and_save_video(
     out_dir: str | None = None,
     with_caption=True,
     make_metadata=True,
+    file_name=None,
 ):
+    audio_name = 'audio.mp3' if file_name is None else f'{file_name}.mp3'
+    video_name = 'video.mp4' if file_name is None else f'{file_name}.mp4'
+    caption_name = 'caption.srt' if file_name is None else f'{file_name}.srt'
+
     try:
         url = f'https://www.youtube.com/watch?v={video_id}'
         yt = YouTube(url)
@@ -23,6 +28,8 @@ def download_and_save_video(
 
     if out_dir is None:
         out_dir = f"outputs/{yt.title.lower().replace(' ', '_')}"
+    else:
+        out_dir = f'outputs/{out_dir}'
 
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
@@ -31,7 +38,7 @@ def download_and_save_video(
         with open(f'{out_dir}/url.txt', 'w') as f:
             f.write(url)
 
-    success = download_audio(yt, output_path=out_dir)
+    success = download_audio(yt, output_path=out_dir, filename=audio_name)
     if success is False:
         return False
     # High res video can only be downloaded without audio!
@@ -50,12 +57,12 @@ def download_and_save_video(
     # using same output path as input one fails to combine!
     combine_audio(
         f'{out_dir}/no_audio.mp4',
-        f'{out_dir}/audio.mp3',
+        f'{out_dir}/{audio_name}',
         f'{out_dir}/no_caption.mp4',
     )
     subprocess.run(['rm', '-rf', f'{out_dir}/no_audio.mp4'])
 
-    success = download_caption(video_id, f'{out_dir}/caption.srt')
+    success = download_caption(video_id, f'{out_dir}/{caption_name}')
     if success is False:
         return False
 
@@ -64,8 +71,8 @@ def download_and_save_video(
 
     add_subtitle_to_video(
         f'{out_dir}/no_caption.mp4',
-        f'{out_dir}/caption.srt',
-        f'{out_dir}/video.mp4',
+        f'{out_dir}/{caption_name}',
+        f'{out_dir}/{video_name}',
     )
     subprocess.run(['rm', '-rf', f'{out_dir}/no_caption.mp4'])
 
@@ -79,7 +86,11 @@ def download_and_save_audio(
     out_dir: str | None = None,
     with_caption=True,
     make_metadata=True,
+    file_name=None,
 ):
+    audio_name = 'audio.mp3' if file_name is None else f'{file_name}.mp3'
+    caption_name = 'caption.srt' if file_name is None else f'{file_name}.srt'
+
     try:
         url = f'https://www.youtube.com/watch?v={video_id}'
         yt = YouTube(url)
@@ -89,6 +100,8 @@ def download_and_save_audio(
 
     if out_dir is None:
         out_dir = f"outputs/{yt.title.lower().replace(' ', '_')}"
+    else:
+        out_dir = f'outputs/{out_dir}'
 
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
@@ -97,14 +110,14 @@ def download_and_save_audio(
         with open(f'{out_dir}/url.txt', 'w') as f:
             f.write(url)
 
-    success = download_audio(yt, output_path=out_dir)
+    success = download_audio(yt, output_path=out_dir, filename=audio_name)
     if success is False:
         return False
 
     if with_caption is False:
         return True
 
-    success = download_caption(video_id, f'{out_dir}/caption.srt')
+    success = download_caption(video_id, f'{out_dir}/{caption_name}')
     if success is False:
         return False
 

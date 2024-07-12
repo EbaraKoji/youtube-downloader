@@ -43,6 +43,13 @@ parser.add_argument(
     type=strtobool,
     required=False,
 )
+parser.add_argument(
+    '--filename',
+    '-f',
+    help='file name to save (video/audio/caption)',
+    default=None,
+    required=False,
+)
 args = parser.parse_args()
 
 if args.resolution is None:
@@ -57,6 +64,7 @@ if args.mode == 'video':
         out_dir=args.output,
         with_caption=bool(args.caption),
         make_metadata=bool(args.metadata),
+        file_name=args.filename,
     )
 elif args.mode == 'audio':
     download_and_save_audio(
@@ -64,6 +72,7 @@ elif args.mode == 'audio':
         out_dir=args.output,
         with_caption=bool(args.caption),
         make_metadata=bool(args.metadata),
+        file_name=args.filename,
     )
 else:
     raise ValueError('args.mode should be "video" or "audio".')
