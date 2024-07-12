@@ -17,8 +17,8 @@ parser.add_argument(
 parser.add_argument(
     '--mode',
     '-m',
-    help='download format(mp4/mp3)',
-    default='mp4',
+    help='download mode(video/audio)',
+    default='video',
     required=False,
 )
 parser.add_argument(
@@ -34,7 +34,9 @@ if args.resolution is None:
 else:
     resolutions = args.resolution
 
-if args.mode == 'mp4':
+if args.mode == 'video':
     download_and_make_captioned_video(args.video_id, resolutions, args.output)
-elif args.mode == 'mp3':
+elif args.mode == 'audio':
     download_audio_caption(args.video_id, args.output)
+else:
+    raise ValueError('args.mode should be "video" or "audio".')
