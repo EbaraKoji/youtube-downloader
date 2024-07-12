@@ -1,6 +1,7 @@
 import argparse
+from distutils.util import strtobool  # type: ignore
 
-from loader import download_and_make_captioned_video, download_audio_caption
+from loader import download_and_save_audio, download_and_save_video
 
 parser = argparse.ArgumentParser()
 
@@ -27,6 +28,21 @@ parser.add_argument(
     help='video resolution',
     required=False,
 )
+parser.add_argument(
+    '--caption',
+    '-c',
+    help='download caption',
+    default=1,
+    type=strtobool,
+    required=False,
+)
+parser.add_argument(
+    '--metadata',
+    help='add metadata',
+    default=1,
+    type=strtobool,
+    required=False,
+)
 args = parser.parse_args()
 
 if args.resolution is None:
@@ -35,8 +51,19 @@ else:
     resolutions = args.resolution
 
 if args.mode == 'video':
-    download_and_make_captioned_video(args.video_id, resolutions, args.output)
+    download_and_save_video(
+        video_id=args.video_id,
+        resolutions=resolutions,
+        out_dir=args.output,
+        with_caption=bool(args.caption),
+        make_metadata=bool(args.metadata),
+    )
 elif args.mode == 'audio':
-    download_audio_caption(args.video_id, args.output)
+    download_and_save_audio(
+        video_id=args.video_id,
+        out_dir=args.output,
+        with_caption=bool(args.caption),
+        make_metadata=bool(args.metadata),
+    )
 else:
     raise ValueError('args.mode should be "video" or "audio".')

@@ -7,10 +7,12 @@ from pytube.exceptions import RegexMatchError  # type: ignore
 from videos import combine_audio, download_audio, download_video
 
 
-def download_and_make_captioned_video(
+def download_and_save_video(
     video_id: str,
     resolutions: str | list[str] = ['1080p', '720p'],
     out_dir: str | None = None,
+    with_caption=True,
+    make_metadata=True,
 ):
     try:
         url = f'https://www.youtube.com/watch?v={video_id}'
@@ -25,8 +27,9 @@ def download_and_make_captioned_video(
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
-    with open(f'{out_dir}/url.txt', 'w') as f:
-        f.write(url)
+    if make_metadata is True:
+        with open(f'{out_dir}/url.txt', 'w') as f:
+            f.write(url)
 
     success = download_audio(yt, output_path=out_dir)
     if success is False:
@@ -56,6 +59,9 @@ def download_and_make_captioned_video(
     if success is False:
         return False
 
+    if with_caption is False:
+        return True
+
     add_subtitle_to_video(
         f'{out_dir}/no_caption.mp4',
         f'{out_dir}/caption.srt',
@@ -68,9 +74,11 @@ def download_and_make_captioned_video(
     return True
 
 
-def download_audio_caption(
+def download_and_save_audio(
     video_id: str,
     out_dir: str | None = None,
+    with_caption=True,
+    make_metadata=True,
 ):
     try:
         url = f'https://www.youtube.com/watch?v={video_id}'
@@ -85,12 +93,16 @@ def download_audio_caption(
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
-    with open(f'{out_dir}/url.txt', 'w') as f:
-        f.write(url)
+    if make_metadata is True:
+        with open(f'{out_dir}/url.txt', 'w') as f:
+            f.write(url)
 
     success = download_audio(yt, output_path=out_dir)
     if success is False:
         return False
+
+    if with_caption is False:
+        return True
 
     success = download_caption(video_id, f'{out_dir}/caption.srt')
     if success is False:
