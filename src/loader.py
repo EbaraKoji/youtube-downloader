@@ -62,12 +62,12 @@ def download_and_save_video(
     )
     subprocess.run(['rm', '-rf', f'{out_dir}/no_audio.mp4'])
 
+    if with_caption is False:
+        return True
+
     success = download_caption(video_id, f'{out_dir}/{caption_name}')
     if success is False:
         return False
-
-    if with_caption is False:
-        return True
 
     add_subtitle_to_video(
         f'{out_dir}/no_caption.mp4',

@@ -1,4 +1,6 @@
+import re
 import traceback
+from datetime import timedelta
 
 import ffmpeg  # type: ignore
 from youtube_transcript_api import YouTubeTranscriptApi  # type: ignore
@@ -48,3 +50,58 @@ def add_subtitle_to_video(
         },
     )
     ffmpeg.run(stream, overwrite_output=True)
+
+
+def strptime(time_str: str, format='%H:%M:%S,%f'):
+    """
+    Parse time str.
+    Args:
+        time_str: time string to parse(formatted)
+        format: format of time string
+    Returns:
+        Total seconds of timedelta.
+    """
+    pattern = re.compile(
+        r'(?P<hour>\d+):(?P<min>\d\d):(?P<sec>\d\d),(?P<ms>\d\d\d)'
+    )
+    match = pattern.search(time_str)
+    if match is None:
+        raise ValueError('Timeformat is not valid.')
+
+    return round(
+        timedelta(
+            hours=int(match.group('hour')),
+            minutes=int(match.group('min')),
+            seconds=int(match.group('sec')),
+            milliseconds=int(match.group('ms')),
+        ).total_seconds(),
+        3,
+    )
+
+
+def convert_srt(file_path: str):
+    """Convert srt to formatted list of dict."""
+    with open(file_path, 'r') as f:
+        srt_text = f.read()
+
+    pattern = re.compile(
+        r'(?P<index>^\d+$)\n(?P<start>^\d+:\d\d:\d\d,\d\d\d) --> (?P<end>\d+:\d\d:\d\d,\d\d\d$)\n(?P<text>^((.*)+\n)+?$)',
+        re.MULTILINE,
+    )
+
+    result: list[dict] = []
+    for match in pattern.finditer(srt_text):
+        start = strptime(match.group('start'))
+        end = strptime(match.group('end'))
+        text = match.group('text').replace(u'\xa0', u' ').replace('\n', '')
+        result.append(
+            {
+                'index': int(match.group('index')),
+                'start': start,
+                'end': end,
+                'text': text,
+                'duration': round((end - start), 3),
+            }
+        )
+
+    return result

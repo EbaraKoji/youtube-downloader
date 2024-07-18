@@ -24,6 +24,8 @@ imageio==2.34.2
     # via moviepy
 imageio-ffmpeg==0.5.1
     # via moviepy
+iniconfig==2.0.0
+    # via pytest
 moviepy==1.0.3
     # via youtube-downloader
 mypy==1.10.1
@@ -32,10 +34,15 @@ mypy-extensions==1.0.0
 numpy==2.0.0
     # via imageio
     # via moviepy
+packaging==24.1
+    # via pytest
 pillow==10.4.0
     # via imageio
+pluggy==1.5.0
+    # via pytest
 proglog==0.1.10
     # via moviepy
+pytest==8.2.2
 pytube==15.0.0
     # via youtube-downloader
 requests==2.32.3
