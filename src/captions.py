@@ -101,7 +101,7 @@ def convert_srt(file_path: str):
     for match in pattern.finditer(srt_text):
         start = strptime(match.group('start'))
         end = strptime(match.group('end'))
-        text = match.group('text').replace(u'\xa0', u' ').replace('\n', '')
+        text = match.group('text').replace(u'\xa0', u' ').replace('\n', '').strip()
         result.append(
             {
                 'index': int(match.group('index')),
@@ -113,3 +113,29 @@ def convert_srt(file_path: str):
         )
 
     return result
+
+def caption_to_sentences(caption: list[CaptionData]):
+    """Convert caption so that each item is whole sentence."""
+    converted: list[CaptionData] = []
+
+    converted_item: CaptionData = {'text': ''}  # type: ignore
+    index = 1
+    for item in caption:
+        if 'start' not in converted_item:
+            converted_item['start'] = item['start']
+            converted_item['index'] = index
+
+        if converted_item['text'] != '':
+            converted_item['text'] += ' '
+        converted_item['text'] += item['text']
+
+        if item['text'].endswith(('.', '!', '?')):
+            converted_item['end'] = item['end']
+            converted_item['duration'] = round(item['end'] - converted_item['start'], 3)
+            converted.append(converted_item)
+            index += 1
+            converted_item = {'text': ''}  # type: ignore
+        else:
+            continue
+
+    return converted
