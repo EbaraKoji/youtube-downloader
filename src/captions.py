@@ -1,6 +1,7 @@
 import re
 import traceback
 from datetime import timedelta
+from typing import TypedDict
 
 import ffmpeg  # type: ignore
 from youtube_transcript_api import YouTubeTranscriptApi  # type: ignore
@@ -78,6 +79,13 @@ def strptime(time_str: str, format='%H:%M:%S,%f'):
         3,
     )
 
+class CaptionData(TypedDict):
+    index: int
+    start: float
+    end: float
+    duration: float
+    text: str
+
 
 def convert_srt(file_path: str):
     """Convert srt to formatted list of dict."""
@@ -89,7 +97,7 @@ def convert_srt(file_path: str):
         re.MULTILINE,
     )
 
-    result: list[dict] = []
+    result: list[CaptionData] = []
     for match in pattern.finditer(srt_text):
         start = strptime(match.group('start'))
         end = strptime(match.group('end'))

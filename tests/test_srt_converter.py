@@ -1,15 +1,14 @@
 # Sample srt is downloaded from https://www.youtube.com/watch?v=qWVTjMsv7AE.
 
-from src.captions import convert_srt
+from src.captions import convert_srt, CaptionData
 
 
-def test_convert_srt():
+def test_convert_srt() -> None:
     caption = convert_srt('tests/sample_caption.srt')
     expected_length = 92
-    expected_keys = {'index', 'start', 'end', 'text', 'duration'}
     assert len(caption) == expected_length
 
-    expected_dict = {
+    expected_dict: CaptionData = {
         'index': 3,
         'start': 7.200,
         'end': 13.680,
@@ -18,6 +17,5 @@ def test_convert_srt():
     }
 
     caption_item = caption[2]
-    assert set(caption_item.keys()) == expected_keys
     assert caption_item == expected_dict
 
