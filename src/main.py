@@ -1,6 +1,7 @@
 import argparse
 from distutils.util import strtobool  # type: ignore
 
+from clients import setup_default_clients
 from loader import download_and_save_audio, download_and_save_video
 
 parser = argparse.ArgumentParser()
@@ -51,6 +52,8 @@ parser.add_argument(
     required=False,
 )
 args = parser.parse_args()
+
+setup_default_clients()
 
 if args.resolution is None:
     resolutions = ['1080p', '720p']

@@ -79,6 +79,24 @@ def strptime(time_str: str, format='%H:%M:%S,%f'):
         3,
     )
 
+
+def strftime(t: timedelta | float):
+    """
+    Convert time to format string. (format: '%H:%M:%S,%f')
+
+    Args:
+        t: timedelta or total_seconds(float).
+    """
+    if isinstance(t, timedelta):
+        t = t.total_seconds()
+
+    hours = int(t // 3600)
+    minutes = int((t % 3600) // 60)
+    seconds = int(t % 60)
+    milliseconds = int((t - int(t)) // 1000)
+    return f'{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}'
+
+
 class CaptionData(TypedDict):
     index: int
     start: float
@@ -101,18 +119,21 @@ def convert_srt(file_path: str):
     for match in pattern.finditer(srt_text):
         start = strptime(match.group('start'))
         end = strptime(match.group('end'))
-        text = match.group('text').replace(u'\xa0', u' ').replace('\n', '').strip()
+        text = (
+            match.group('text').replace('\xa0', ' ').replace('\n', '').strip()
+        )
         result.append(
             {
                 'index': int(match.group('index')),
                 'start': start,
                 'end': end,
-                'text': text,
+                'text': text.strip(),
                 'duration': round((end - start), 3),
             }
         )
 
     return result
+
 
 def caption_to_sentences(caption: list[CaptionData]):
     """Convert caption so that each item is whole sentence."""
@@ -131,7 +152,9 @@ def caption_to_sentences(caption: list[CaptionData]):
 
         if item['text'].endswith(('.', '!', '?')):
             converted_item['end'] = item['end']
-            converted_item['duration'] = round(item['end'] - converted_item['start'], 3)
+            converted_item['duration'] = round(
+                item['end'] - converted_item['start'], 3
+            )
             converted.append(converted_item)
             index += 1
             converted_item = {'text': ''}  # type: ignore
@@ -139,3 +162,19 @@ def caption_to_sentences(caption: list[CaptionData]):
             continue
 
     return converted
+
+
+def caption_item_to_srt(data: CaptionData):
+    return f"""{data['index']}
+{strftime(data['start'])} --> {strftime(data['end'])}
+{data['text']}
+
+"""
+
+
+def caption_to_srt(caption: list[CaptionData], save_path: str):
+    srt_text = ''
+    for item in caption:
+        srt_text += caption_item_to_srt(item)
+    with open(save_path, 'w') as f:
+        f.write(srt_text)
