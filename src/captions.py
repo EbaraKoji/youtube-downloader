@@ -1,4 +1,7 @@
+import re
 import traceback
+from datetime import timedelta
+from typing import TypedDict
 
 import ffmpeg  # type: ignore
 from youtube_transcript_api import YouTubeTranscriptApi  # type: ignore
@@ -48,3 +51,130 @@ def add_subtitle_to_video(
         },
     )
     ffmpeg.run(stream, overwrite_output=True)
+
+
+def strptime(time_str: str, format='%H:%M:%S,%f'):
+    """
+    Parse time str.
+    Args:
+        time_str: time string to parse(formatted)
+        format: format of time string
+    Returns:
+        Total seconds of timedelta.
+    """
+    pattern = re.compile(
+        r'(?P<hour>\d+):(?P<min>\d\d):(?P<sec>\d\d),(?P<ms>\d\d\d)'
+    )
+    match = pattern.search(time_str)
+    if match is None:
+        raise ValueError('Timeformat is not valid.')
+
+    return round(
+        timedelta(
+            hours=int(match.group('hour')),
+            minutes=int(match.group('min')),
+            seconds=int(match.group('sec')),
+            milliseconds=int(match.group('ms')),
+        ).total_seconds(),
+        3,
+    )
+
+
+def strftime(t: timedelta | float):
+    """
+    Convert time to format string. (format: '%H:%M:%S,%f')
+
+    Args:
+        t: timedelta or total_seconds(float).
+    """
+    if isinstance(t, timedelta):
+        t = t.total_seconds()
+
+    hours = int(t // 3600)
+    minutes = int((t % 3600) // 60)
+    seconds = int(t % 60)
+    milliseconds = int((t - int(t)) // 1000)
+    return f'{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}'
+
+
+class CaptionData(TypedDict):
+    index: int
+    start: float
+    end: float
+    duration: float
+    text: str
+
+
+def convert_srt(file_path: str):
+    """Convert srt to formatted list of dict."""
+    with open(file_path, 'r') as f:
+        srt_text = f.read()
+
+    pattern = re.compile(
+        r'(?P<index>^\d+$)\n(?P<start>^\d+:\d\d:\d\d,\d\d\d) --> (?P<end>\d+:\d\d:\d\d,\d\d\d$)\n(?P<text>^((.*)+\n)+?$)',
+        re.MULTILINE,
+    )
+
+    result: list[CaptionData] = []
+    for match in pattern.finditer(srt_text):
+        start = strptime(match.group('start'))
+        end = strptime(match.group('end'))
+        text = (
+            match.group('text').replace('\xa0', ' ').replace('\n', '').strip()
+        )
+        result.append(
+            {
+                'index': int(match.group('index')),
+                'start': start,
+                'end': end,
+                'text': text.strip(),
+                'duration': round((end - start), 3),
+            }
+        )
+
+    return result
+
+
+def caption_to_sentences(caption: list[CaptionData]):
+    """Convert caption so that each item is whole sentence."""
+    converted: list[CaptionData] = []
+
+    converted_item: CaptionData = {'text': ''}  # type: ignore
+    index = 1
+    for item in caption:
+        if 'start' not in converted_item:
+            converted_item['start'] = item['start']
+            converted_item['index'] = index
+
+        if converted_item['text'] != '':
+            converted_item['text'] += ' '
+        converted_item['text'] += item['text']
+
+        if item['text'].endswith(('.', '!', '?')):
+            converted_item['end'] = item['end']
+            converted_item['duration'] = round(
+                item['end'] - converted_item['start'], 3
+            )
+            converted.append(converted_item)
+            index += 1
+            converted_item = {'text': ''}  # type: ignore
+        else:
+            continue
+
+    return converted
+
+
+def caption_item_to_srt(data: CaptionData):
+    return f"""{data['index']}
+{strftime(data['start'])} --> {strftime(data['end'])}
+{data['text']}
+
+"""
+
+
+def caption_to_srt(caption: list[CaptionData], save_path: str):
+    srt_text = ''
+    for item in caption:
+        srt_text += caption_item_to_srt(item)
+    with open(save_path, 'w') as f:
+        f.write(srt_text)
