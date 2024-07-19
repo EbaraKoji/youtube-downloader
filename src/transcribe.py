@@ -9,11 +9,11 @@ def generate_caption(
 ):
     model = whisper.load_model(model_name)
     if translate_to is None:
-        result = model.transcribe(audio_path)
+        result = model.transcribe(audio_path, verbose=True)
     else:
         # XXX: Whisper cannot translate English to other language
         result = model.transcribe(
-            audio_path, task='translate', language=translate_to
+            audio_path, task='translate', language=translate_to, verbose=True
         )
 
     segments = result['segments']
@@ -50,9 +50,15 @@ if __name__ == '__main__':
         'path',
         help='path for audio file and output srt file',
     )
+    parser.add_argument(
+        '--model',
+        help='model name',
+        default='base',
+    )
     args = parser.parse_args()
 
     generate_srt(
         f'outputs/{args.path}/audio.mp3',  # default download file_name
         f'outputs/{args.path}/whisper.srt',
+        model_name=args.model,
     )
