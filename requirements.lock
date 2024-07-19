@@ -55,6 +55,8 @@ pillow==10.4.0
     # via imageio
 proglog==0.1.10
     # via moviepy
+python-dotenv==1.0.1
+    # via youtube-downloader
 pytube==15.0.0
     # via youtube-downloader
 regex==2024.5.15

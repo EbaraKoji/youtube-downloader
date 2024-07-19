@@ -65,6 +65,8 @@ pluggy==1.5.0
 proglog==0.1.10
     # via moviepy
 pytest==8.2.2
+python-dotenv==1.0.1
+    # via youtube-downloader
 pytube==15.0.0
     # via youtube-downloader
 regex==2024.5.15
