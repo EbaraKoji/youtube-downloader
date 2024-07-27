@@ -85,7 +85,7 @@ def add_subtitle_to_video(
     ffmpeg.run(stream, overwrite_output=True)
 
 
-def strptime(time_str: str, ext=CaptionExt.SRT):
+def strptime(time_str: str, ext=CaptionExt.VTT):
     """
     Parse time str.
     Args:
@@ -213,7 +213,7 @@ def caption_to_sentences(caption: list[CaptionData]):
     return converted
 
 
-def convert_caption_item(data: CaptionData, ext=CaptionExt.SRT):
+def convert_caption_item(data: CaptionData, ext=CaptionExt.VTT):
     return f"""{data['index']}
 {strftime(data['start'], ext)} --> {strftime(data['end'], ext)}
 {data['text']}
@@ -221,7 +221,7 @@ def convert_caption_item(data: CaptionData, ext=CaptionExt.SRT):
 """
 
 
-def caption_to_txt(caption: list[CaptionData], ext=CaptionExt.SRT):
+def caption_to_string(caption: list[CaptionData], ext=CaptionExt.VTT):
     caption_text = ''
     if ext == CaptionExt.VTT:
         caption_text += 'WEBVTT\n\n'
@@ -238,7 +238,7 @@ def save_caption(caption: list[CaptionData], save_path: str):
     else:
         raise ValueError('save_path extension should be .srt or .vtt')
 
-    caption_text = caption_to_txt(caption, file_ext)
+    caption_text = caption_to_string(caption, file_ext)
 
     with open(save_path, 'w') as f:
         f.write(caption_text)

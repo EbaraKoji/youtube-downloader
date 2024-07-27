@@ -33,7 +33,7 @@ parser.add_argument(
 parser.add_argument(
     '--srt',
     help='download srt caption',
-    default=1,
+    default=0,
     type=strtobool,
     required=False,
 )
@@ -41,7 +41,7 @@ parser.add_argument(
 parser.add_argument(
     '--vtt',
     help='download vtt caption',
-    default=0,
+    default=1,
     type=strtobool,
     required=False,
 )
