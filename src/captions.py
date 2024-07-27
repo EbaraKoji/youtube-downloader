@@ -5,8 +5,20 @@ from enum import Enum
 from typing import TypedDict
 
 import ffmpeg  # type: ignore
+import spacy
 from youtube_transcript_api import YouTubeTranscriptApi  # type: ignore
-from youtube_transcript_api.formatters import SRTFormatter, WebVTTFormatter, TextFormatter  # type: ignore
+from youtube_transcript_api.formatters import (  # type: ignore
+    SRTFormatter,
+    TextFormatter,
+    WebVTTFormatter,
+)
+
+
+class WordTimestamp(TypedDict):
+    word: str
+    start: float
+    end: float
+    probability: float
 
 
 class CaptionData(TypedDict):
@@ -31,18 +43,18 @@ def load_yt_caption(
         raise ValueError('No ext item is provided.')
     transcript = YouTubeTranscriptApi.get_transcript(video_id)
     formatted = {}
-    
+
     if CaptionExt.SRT in exts:
         formatter = SRTFormatter()
-        formatted['srt'] = (formatter.format_transcript(transcript))
-    
+        formatted['srt'] = formatter.format_transcript(transcript)
+
     if CaptionExt.VTT in exts:
         formatter = WebVTTFormatter()
-        formatted['vtt'] = (formatter.format_transcript(transcript))
+        formatted['vtt'] = formatter.format_transcript(transcript)
 
     if CaptionExt.TXT in exts:
         formatter = TextFormatter()
-        formatted['txt'] = (formatter.format_transcript(transcript))
+        formatted['txt'] = formatter.format_transcript(transcript)
 
     return formatted
 
@@ -58,7 +70,7 @@ def download_caption(video_id: str, output_path: str, exts={CaptionExt.SRT}):
     for key in captions.keys():
         with open(f'{output_path}.{key}', 'w', encoding='utf-8') as f:
             f.write(captions[key])
-    
+
     return True
 
 
@@ -212,6 +224,47 @@ def caption_to_sentences(caption: list[CaptionData]):
             continue
 
     return converted
+
+
+def word_timestamp_to_caption(word_timestamps: list[WordTimestamp]):
+    text = ''.join([item['word'] for item in word_timestamps]).strip()
+    nlp = spacy.load('en_core_web_sm')
+    doc = nlp(text)
+    tokens = (token for token in doc)
+
+    caption: list[CaptionData] = []
+
+    caption_item: CaptionData = {'text': ''}  # type: ignore
+    index = 1
+    tmp_word = ''
+    for word_item in word_timestamps:
+        word = ''.join(word_item['word'].split())
+
+        # add word
+        while tmp_word != word:
+            token = next(tokens)
+            if token.is_sent_start and 'start' not in caption_item:
+                caption_item['start'] = word_item['start']
+            tmp_word += token.text
+
+        caption_item['text'] += word
+        tmp_word = ''
+
+        if token.is_sent_end:
+            caption_item['index'] = index
+            caption_item['end'] = word_item['end']
+            caption_item['duration'] = round(
+                caption_item['end'] - caption_item['start'], 3
+            )
+
+            caption.append(caption_item)
+
+            caption_item = {'text': ''}  # type: ignore
+            index += 1
+        else:
+            caption_item['text'] += ' '
+
+    return caption
 
 
 def convert_caption_item(data: CaptionData, ext=CaptionExt.VTT):

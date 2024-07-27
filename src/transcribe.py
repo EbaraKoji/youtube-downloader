@@ -1,5 +1,7 @@
+from itertools import chain
+
 import whisper  # type: ignore
-from captions import CaptionData, save_caption
+from captions import CaptionData, WordTimestamp, save_caption
 
 
 def generate_transcribed_caption(
@@ -11,14 +13,25 @@ def generate_transcribed_caption(
 ):
     model = whisper.load_model(model_name)
     if translate_to is None:
-        result = model.transcribe(audio_path, verbose=verbose)
+        result = model.transcribe(
+            audio_path,
+            verbose=verbose,
+            word_timestamps=True,
+        )
     else:
         # XXX: Whisper cannot translate English to other language
         result = model.transcribe(
-            audio_path, task='translate', language=translate_to, verbose=verbose
+            audio_path,
+            task='translate',
+            language=translate_to,
+            verbose=verbose,
+            word_timestamps=True,
         )
 
     segments = result['segments']
+    word_timestamps: list[WordTimestamp] = list(
+        chain(*[item['words'] for item in result['segments']])
+    )
 
     caption: list[CaptionData] = [
         {
@@ -33,8 +46,8 @@ def generate_transcribed_caption(
 
     if save_path is not None:
         save_caption(caption, save_path)
-        
-    return caption
+
+    return caption, word_timestamps
 
 
 if __name__ == '__main__':
