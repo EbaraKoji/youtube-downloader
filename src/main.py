@@ -3,6 +3,7 @@ from distutils.util import strtobool  # type: ignore
 
 from clients import setup_default_clients
 from loader import download_and_save_audio, download_and_save_video
+from captions import CaptionExt
 
 parser = argparse.ArgumentParser()
 
@@ -30,13 +31,29 @@ parser.add_argument(
     required=False,
 )
 parser.add_argument(
-    '--caption',
-    '-c',
-    help='download caption',
+    '--srt',
+    help='download srt caption',
     default=1,
     type=strtobool,
     required=False,
 )
+
+parser.add_argument(
+    '--vtt',
+    help='download vtt caption',
+    default=0,
+    type=strtobool,
+    required=False,
+)
+
+parser.add_argument(
+    '--txt',
+    help='download txt caption',
+    default=0,
+    type=strtobool,
+    required=False,
+)
+
 parser.add_argument(
     '--metadata',
     help='add metadata',
@@ -60,12 +77,20 @@ if args.resolution is None:
 else:
     resolutions = args.resolution
 
+exts: set[CaptionExt] = set()
+if bool(args.srt) is True:
+    exts.add(CaptionExt.SRT)
+if bool(args.vtt) is True:
+    exts.add(CaptionExt.VTT)
+if bool(args.txt) is True:
+    exts.add(CaptionExt.TXT)
+
 if args.mode == 'video':
     download_and_save_video(
         video_id=args.video_id,
         resolutions=resolutions,
         out_dir=args.output,
-        with_caption=bool(args.caption),
+        caption_exts=exts,
         make_metadata=bool(args.metadata),
         file_name=args.filename,
     )
@@ -73,7 +98,7 @@ elif args.mode == 'audio':
     download_and_save_audio(
         video_id=args.video_id,
         out_dir=args.output,
-        with_caption=bool(args.caption),
+        caption_exts=exts,
         make_metadata=bool(args.metadata),
         file_name=args.filename,
     )

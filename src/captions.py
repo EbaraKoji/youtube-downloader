@@ -1,32 +1,64 @@
 import re
 import traceback
 from datetime import timedelta
+from enum import Enum
 from typing import TypedDict
 
 import ffmpeg  # type: ignore
 from youtube_transcript_api import YouTubeTranscriptApi  # type: ignore
-from youtube_transcript_api.formatters import SRTFormatter  # type: ignore
+from youtube_transcript_api.formatters import SRTFormatter, WebVTTFormatter, TextFormatter  # type: ignore
 
 
-def load_caption(
+class CaptionData(TypedDict):
+    index: int
+    start: float
+    end: float
+    duration: float
+    text: str
+
+
+class CaptionExt(Enum):
+    SRT = 'srt'
+    VTT = 'vtt'
+    TXT = 'txt'
+
+
+def load_yt_caption(
     video_id: str,
-    formatter=SRTFormatter(),
+    exts: set[CaptionExt],
 ):
+    if len(exts) == 0:
+        raise ValueError('No ext item is provided.')
     transcript = YouTubeTranscriptApi.get_transcript(video_id)
-    formatted = formatter.format_transcript(transcript)
+    formatted = {}
+    
+    if CaptionExt.SRT in exts:
+        formatter = SRTFormatter()
+        formatted['srt'] = (formatter.format_transcript(transcript))
+    
+    if CaptionExt.VTT in exts:
+        formatter = WebVTTFormatter()
+        formatted['vtt'] = (formatter.format_transcript(transcript))
+
+    if CaptionExt.TXT in exts:
+        formatter = TextFormatter()
+        formatted['txt'] = (formatter.format_transcript(transcript))
+
     return formatted
 
 
-def download_caption(video_id: str, output_file: str):
+def download_caption(video_id: str, output_path: str, exts={CaptionExt.SRT}):
     try:
-        caption = load_caption(video_id)
+        captions = load_yt_caption(video_id, exts)
     except BaseException:
         traceback.print_exc()
         print('Failed to load caption.')
         return False
 
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write(caption)
+    for key in captions.keys():
+        with open(f'{output_path}.{key}', 'w', encoding='utf-8') as f:
+            f.write(captions[key])
+    
     return True
 
 
@@ -38,7 +70,7 @@ def add_subtitle_to_video(
 ):
     video_input_stream = ffmpeg.input(input_video)
     subtitle_input_stream = ffmpeg.input(subtitle_file)
-    subtitle_track_title = subtitle_file.replace('.srt', '')
+    subtitle_track_title = subtitle_file[:-3]
 
     stream = ffmpeg.output(
         video_input_stream,
@@ -53,18 +85,26 @@ def add_subtitle_to_video(
     ffmpeg.run(stream, overwrite_output=True)
 
 
-def strptime(time_str: str, format='%H:%M:%S,%f'):
+def strptime(time_str: str, ext=CaptionExt.SRT):
     """
     Parse time str.
     Args:
         time_str: time string to parse(formatted)
-        format: format of time string
+        ext: caption extension(srt or vtt).
     Returns:
         Total seconds of timedelta.
     """
-    pattern = re.compile(
-        r'(?P<hour>\d+):(?P<min>\d\d):(?P<sec>\d\d),(?P<ms>\d\d\d)'
-    )
+    if ext == CaptionExt.SRT:
+        pattern = re.compile(
+            r'(?P<hour>\d+):(?P<min>\d\d):(?P<sec>\d\d),(?P<ms>\d\d\d)'
+        )
+    elif ext == CaptionExt.VTT:
+        pattern = re.compile(
+            r'(?P<hour>\d+):(?P<min>\d\d):(?P<sec>\d\d).(?P<ms>\d\d\d)'
+        )
+    else:
+        raise ValueError('file extension should be .srt or .vtt')
+
     match = pattern.search(time_str)
     if match is None:
         raise ValueError('Timeformat is not valid.')
@@ -80,12 +120,13 @@ def strptime(time_str: str, format='%H:%M:%S,%f'):
     )
 
 
-def strftime(t: timedelta | float):
+def strftime(t: timedelta | float, ext: CaptionExt):
     """
     Convert time to format string. (format: '%H:%M:%S,%f')
 
     Args:
         t: timedelta or total_seconds(float).
+        ext: caption extension(srt or vtt).
     """
     if isinstance(t, timedelta):
         t = t.total_seconds()
@@ -94,40 +135,48 @@ def strftime(t: timedelta | float):
     minutes = int((t % 3600) // 60)
     seconds = int(t % 60)
     milliseconds = int((t - int(t)) // 1000)
-    return f'{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}'
+
+    delimiter = ',' if ext == CaptionExt.SRT else '.'
+    return f'{hours:02}:{minutes:02}:{seconds:02}{delimiter}{milliseconds:03}'
 
 
-class CaptionData(TypedDict):
-    index: int
-    start: float
-    end: float
-    duration: float
-    text: str
-
-
-def convert_srt(file_path: str):
+def load_caption_file(file_path: str):
     """Convert srt to formatted list of dict."""
-    with open(file_path, 'r') as f:
-        srt_text = f.read()
+    if file_path[-3:] == CaptionExt.SRT.value:
+        file_ext = CaptionExt.SRT
+    elif file_path[-3:] == CaptionExt.VTT.value:
+        file_ext = CaptionExt.VTT
+    else:
+        raise ValueError('file extension should be .srt or .vtt')
 
-    pattern = re.compile(
-        r'(?P<index>^\d+$)\n(?P<start>^\d+:\d\d:\d\d,\d\d\d) --> (?P<end>\d+:\d\d:\d\d,\d\d\d$)\n(?P<text>^((.*)+\n)+?$)',
-        re.MULTILINE,
-    )
+    with open(file_path, 'r') as f:
+        caption_text = f.read()
+
+    if file_ext == CaptionExt.SRT:
+        pattern = re.compile(
+            r'(?P<index>(^\d+$\n)?)(?P<start>^\d+:\d\d:\d\d,\d\d\d) --> (?P<end>\d+:\d\d:\d\d,\d\d\d$)\n(?P<text>^((.*)+\n)+?$)',
+            re.MULTILINE,
+        )
+    elif file_ext == CaptionExt.VTT:
+        pattern = re.compile(
+            r'(?P<index>(^\d+$\n)?)(?P<start>^\d+:\d\d:\d\d\.\d\d\d) --> (?P<end>\d+:\d\d:\d\d\.\d\d\d$)\n(?P<text>^((.*)+\n)+?$)',
+            re.MULTILINE,
+        )
 
     result: list[CaptionData] = []
-    for match in pattern.finditer(srt_text):
-        start = strptime(match.group('start'))
-        end = strptime(match.group('end'))
+    for i, match in enumerate(pattern.finditer(caption_text)):
+        start = strptime(match.group('start'), file_ext)
+        end = strptime(match.group('end'), file_ext)
         text = (
             match.group('text').replace('\xa0', ' ').replace('\n', '').strip()
-        )
+        ).strip()
+
         result.append(
             {
-                'index': int(match.group('index')),
+                'index': int(match.group('index') or i + 1),
                 'start': start,
                 'end': end,
-                'text': text.strip(),
+                'text': text,
                 'duration': round((end - start), 3),
             }
         )
@@ -164,17 +213,32 @@ def caption_to_sentences(caption: list[CaptionData]):
     return converted
 
 
-def caption_item_to_srt(data: CaptionData):
+def convert_caption_item(data: CaptionData, ext=CaptionExt.SRT):
     return f"""{data['index']}
-{strftime(data['start'])} --> {strftime(data['end'])}
+{strftime(data['start'], ext)} --> {strftime(data['end'], ext)}
 {data['text']}
 
 """
 
 
-def caption_to_srt(caption: list[CaptionData], save_path: str):
-    srt_text = ''
+def caption_to_txt(caption: list[CaptionData], ext=CaptionExt.SRT):
+    caption_text = ''
+    if ext == CaptionExt.VTT:
+        caption_text += 'WEBVTT\n\n'
     for item in caption:
-        srt_text += caption_item_to_srt(item)
+        caption_text += convert_caption_item(item, ext)
+    return caption_text
+
+
+def save_caption(caption: list[CaptionData], save_path: str):
+    if save_path[-3:] == CaptionExt.SRT.value:
+        file_ext = CaptionExt.SRT
+    elif save_path[-3:] == CaptionExt.VTT.value:
+        file_ext = CaptionExt.VTT
+    else:
+        raise ValueError('save_path extension should be .srt or .vtt')
+
+    caption_text = caption_to_txt(caption, file_ext)
+
     with open(save_path, 'w') as f:
-        f.write(srt_text)
+        f.write(caption_text)

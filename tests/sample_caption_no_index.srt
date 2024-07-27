@@ -1,0 +1,361 @@
+00:00:00,080 --> 00:00:03,760
+The web as we know it today has 
+become incredibly important.  
+
+00:00:03,760 --> 00:00:07,200
+But it's not without its problems. In 2017,  
+
+00:00:07,200 --> 00:00:13,680
+28 years after the web was conceived, Sir Tim 
+Berners-Lee wrote about 3 trends that worried him.
+
+00:00:13,680 --> 00:00:17,360
+The first one was that we've lost 
+control of our personal data.
+
+00:00:17,360 --> 00:00:21,840
+Many websites today offer us a free 
+service in exchange for our data.  
+
+00:00:21,840 --> 00:00:26,400
+But we're not given a choice. Want to 
+use Facebook? Then you have to accept  
+
+00:00:26,400 --> 00:00:32,240
+their terms and conditions, and that includes 
+how it collects, stores, and uses your data.
+
+00:00:32,240 --> 00:00:35,760
+Others do the same thing, and that 
+means that our data is scattered  
+
+00:00:35,760 --> 00:00:41,440
+all over the place. Some companies even sell 
+your data to third-parties behind your back.
+
+00:00:41,440 --> 00:00:45,760
+We have no idea what happens with our 
+data, and we have no control over it.
+
+00:00:46,320 --> 00:00:51,440
+To solve this problem, the inventor of the web 
+is working on Solid. It's not a new internet,  
+
+00:00:51,440 --> 00:00:53,920
+but rather an extension of the web as we know it.  
+
+00:00:54,880 --> 00:00:58,480
+You don't need anything special to 
+use it. Any web browser will do.
+
+00:00:59,120 --> 00:01:02,000
+The goal of Solid is to take all your data -- that  
+
+00:01:02,000 --> 00:01:07,040
+is scattered around -- and centralize it in 
+a single place that's under your control.
+
+00:01:07,040 --> 00:01:13,360
+In Solid, this place is called a "pod", and it can 
+store any data. Your contact information, files,  
+
+00:01:13,360 --> 00:01:19,200
+photos, basically all the data that you produce 
+and all data that others produce about you.
+
+00:01:19,200 --> 00:01:24,000
+Your pod gives you fine-grained control over 
+your data. You can choose what you share,  
+
+00:01:24,000 --> 00:01:28,400
+with whom you share it, and you can 
+revoke that permission at any time.
+
+00:01:28,400 --> 00:01:33,840
+Here's a concrete example. Today, social 
+networks store all your data on their servers.  
+
+00:01:33,840 --> 00:01:38,160
+But a social network built on Solid 
+would keep your data in your pod.  
+
+00:01:38,160 --> 00:01:41,680
+So whenever you post something, 
+it goes into your pod.
+
+00:01:41,680 --> 00:01:45,520
+Now, having all your data in one 
+place has interesting side-effects.
+
+00:01:45,520 --> 00:01:50,400
+For starters, you could allow 
+multiple apps to access the same data.
+
+00:01:50,400 --> 00:01:53,520
+For example, I use Spotify to listen to music,  
+
+00:01:53,520 --> 00:01:58,960
+and over the years, I have built an entire 
+library there. Spotify uses this data,  
+
+00:01:58,960 --> 00:02:04,880
+along with my listening history, to understand my 
+tastes in music and help me discover new songs.
+
+00:02:04,880 --> 00:02:07,840
+And here's the problem: 
+Spotify locks up that data.  
+
+00:02:08,400 --> 00:02:12,400
+I can move to Apple Music, but that 
+would mean re-building my library  
+
+00:02:12,400 --> 00:02:17,360
+and waiting for them to learn my music tastes 
+before it can give me good recommendations.
+
+00:02:18,000 --> 00:02:21,520
+Tim Berners-Lee calls this data 
+"silos", where each company  
+
+00:02:21,520 --> 00:02:26,800
+builds its own data store and protects it from 
+others—giving them a competitive advantage.
+
+00:02:27,440 --> 00:02:33,280
+If these services ran on Solid, my music library 
+and listening history would be stored in my pod.  
+
+00:02:33,840 --> 00:02:38,640
+Switching services is then easy. Just allow 
+the new service to access the same data,  
+
+00:02:38,640 --> 00:02:40,480
+and we're off to races.
+
+00:02:40,480 --> 00:02:44,800
+This means that Solid can help to level the 
+playing field. Allowing small developers  
+
+00:02:44,800 --> 00:02:48,560
+to compete with the big ones because 
+they can have access to the same data.
+
+00:02:49,280 --> 00:02:54,240
+On a technical level, this is done with 
+vocabularies, a mechanism to describe data  
+
+00:02:54,240 --> 00:02:59,600
+so that many applications can understand it. 
+It is almost like standardized file formats,  
+
+00:02:59,600 --> 00:03:05,680
+like PDF, JPG, or MP3 files, which can be 
+created and opened by many different apps.
+
+00:03:06,480 --> 00:03:10,160
+Another side-effect is that 
+because your data is in one place,  
+
+00:03:10,160 --> 00:03:14,720
+there's a single source of truth for 
+everything. If you moved to a new place,  
+
+00:03:14,720 --> 00:03:18,720
+you could change your address in your 
+pod, and everyone that has access to it  
+
+00:03:18,720 --> 00:03:24,320
+will see it—no need to go running around, changing 
+your address in countless services and apps.
+
+00:03:25,200 --> 00:03:28,640
+And finally, storing user 
+data has become a liability  
+
+00:03:28,640 --> 00:03:35,520
+because of privacy laws like GDPR and CCPA. 
+Mishandle data, and you could be fined.
+
+00:03:35,520 --> 00:03:40,800
+But storing data in the user's pod means 
+you automatically comply with these laws.  
+
+00:03:40,800 --> 00:03:46,640
+A user can always see what data is being 
+stored. He can delete it and revoke access.
+
+00:03:46,640 --> 00:03:52,240
+But enough about these side-effects. Let's 
+talk again about pods. How do you get one?  
+
+00:03:52,240 --> 00:03:55,920
+Well, that's up to you. You can 
+pick any provider you'd like.  
+
+00:03:55,920 --> 00:04:00,080
+Maybe one with a good privacy policy 
+or one that's hosted in your country.
+
+00:04:00,080 --> 00:04:03,840
+Or maybe you don't trust anyone 
+and want to host your own.  
+
+00:04:03,840 --> 00:04:08,640
+All of this is possible because the software 
+is open-source and freely available.
+
+00:04:08,640 --> 00:04:13,360
+But a pod is only a place to store 
+data, and that's not enough. We also  
+
+00:04:13,360 --> 00:04:18,720
+need a way to identify ourselves on 
+the web. That's where WebID comes in.
+
+00:04:18,720 --> 00:04:23,920
+You can compare it to Login with Google or 
+Facebook. Want to use a Solid application? Just  
+
+00:04:23,920 --> 00:04:29,840
+login with your WebID. The key difference is that 
+your WebID doesn't share data with third-parties.
+
+00:04:29,840 --> 00:04:35,280
+We could see a future where governments give 
+each citizen a WebID to access government-related  
+
+00:04:35,280 --> 00:04:41,600
+services. You can have multiple WebID's, one 
+issued by your government and a personal one.
+
+00:04:41,600 --> 00:04:46,800
+The same is true for pods. Maybe you want 
+a pod for personal data and one for work.
+
+00:04:46,800 --> 00:04:50,160
+But Solid isn't without 
+challenges. Here are a few.
+
+00:04:50,160 --> 00:04:55,840
+Let's start with monetization. Many services today 
+are free because we pay for them with our data.
+
+00:04:56,400 --> 00:05:00,800
+Solid apps could replicate this, ask 
+the user to give some of his data,  
+
+00:05:00,800 --> 00:05:05,520
+and show targeted ads based on those. 
+Nothing prevents a Solid app from doing  
+
+00:05:05,520 --> 00:05:10,320
+that. The difference is that the user 
+can revoke that access at any time.
+
+00:05:10,320 --> 00:05:13,680
+Another solution could be to 
+charge a fee to use the app.  
+
+00:05:13,680 --> 00:05:17,040
+Or maybe offer both, and let users decide.
+
+00:05:17,040 --> 00:05:21,840
+Pod providers can do similar things. They can 
+charge based on the amount of storage you use,  
+
+00:05:21,840 --> 00:05:26,560
+or they could ask you to reveal some 
+personal data in exchange for a free service.  
+
+00:05:26,560 --> 00:05:30,160
+Or maybe, they could charge 
+apps for using your data.
+
+00:05:30,160 --> 00:05:35,680
+I discussed this topic with Ruben Verborgh, 
+a Decentralized Web Technology professor,  
+
+00:05:35,680 --> 00:05:40,160
+and he puts it this way: "future companies 
+should derive their value from the  
+
+00:05:40,160 --> 00:05:46,320
+intelligence they provide". In other words: don't 
+lock people in by taking their data hostage,  
+
+00:05:46,320 --> 00:05:49,840
+but lock them in by providing 
+the best service out there.
+
+00:05:49,840 --> 00:05:53,760
+Another challenge for Solid is that 
+once an app gets access to some data,  
+
+00:05:53,760 --> 00:05:58,880
+it can copy it to another server. There's 
+no technical solution that can prevent this.  
+
+00:05:58,880 --> 00:06:04,640
+But there are legal ones, like the GDPR, 
+which make it risky to copy personal data.
+
+00:06:04,640 --> 00:06:09,200
+Professor Verborgh notes that our 
+current lack of privacy is a consequence  
+
+00:06:09,200 --> 00:06:13,920
+of unsustainable business models. When 
+the economics of personal data change,  
+
+00:06:13,920 --> 00:06:20,880
+there'll be no reason to collect personal data 
+other than the data already in the users' pod.
+
+00:06:20,880 --> 00:06:26,880
+At this point, you might wonder: this is great. 
+Can I use it today? Well, yes. It's still a work  
+
+00:06:26,880 --> 00:06:32,720
+in progress, but there are many apps available 
+and tools for developers to create Solid apps.
+
+00:06:32,720 --> 00:06:36,960
+And, Solid itself is an open standard 
+that everyone can contribute to.
+
+00:06:37,760 --> 00:06:42,320
+One last thing before I end the video. I 
+mentioned before that governments could provide  
+
+00:06:42,320 --> 00:06:47,680
+pods and WebID's to citizens. In Belgium, 
+the Flemish government wants to do just that.  
+
+00:06:47,680 --> 00:06:52,000
+It has kicked off an ambitious project 
+to form a data utility company.
+
+00:06:52,000 --> 00:06:56,160
+This company will centralize the 
+citizen's data and put them in control.  
+
+00:06:56,160 --> 00:07:00,080
+This could kick start the adoption of 
+Solid while at the same time boosting  
+
+00:07:00,080 --> 00:07:03,840
+the efficiency of government agencies 
+because they no longer have to keep  
+
+00:07:03,840 --> 00:07:08,880
+citizen data up-to-date across different 
+systems. Everything is just in one pod.
+
+00:07:09,680 --> 00:07:14,800
+I can't wait to see the next generation of 
+apps and services built on Solid. Consider  
+
+00:07:14,800 --> 00:07:20,720
+subscribing if you found this video interesting. 
+Thanks for watching, and till next time!

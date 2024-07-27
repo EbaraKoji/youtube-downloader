@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from captions import add_subtitle_to_video, download_caption
+from captions import CaptionExt, add_subtitle_to_video, download_caption
 from pytube import YouTube  # type: ignore
 from pytube.exceptions import RegexMatchError  # type: ignore
 from videos import combine_audio, download_audio, download_video
@@ -11,13 +11,13 @@ def download_and_save_video(
     video_id: str,
     resolutions: str | list[str] = ['1080p', '720p'],
     out_dir: str | None = None,
-    with_caption=True,
+    caption_exts: set[CaptionExt] = {CaptionExt.SRT},
     make_metadata=True,
     file_name=None,
 ):
     audio_name = 'audio.mp3' if file_name is None else f'{file_name}.mp3'
     video_name = 'video.mp4' if file_name is None else f'{file_name}.mp4'
-    caption_name = 'caption.srt' if file_name is None else f'{file_name}.srt'
+    caption_name = 'caption' if file_name is None else file_name
 
     try:
         url = f'https://www.youtube.com/watch?v={video_id}'
@@ -62,19 +62,33 @@ def download_and_save_video(
     )
     subprocess.run(['rm', '-rf', f'{out_dir}/no_audio.mp4'])
 
-    if with_caption is False:
+    if len(caption_exts) == 0:
         return True
 
-    success = download_caption(video_id, f'{out_dir}/{caption_name}')
+    success = download_caption(
+        video_id, f'{out_dir}/{caption_name}', caption_exts
+    )
     if success is False:
         return False
 
-    add_subtitle_to_video(
-        f'{out_dir}/no_caption.mp4',
-        f'{out_dir}/{caption_name}',
-        f'{out_dir}/{video_name}',
-    )
-    subprocess.run(['rm', '-rf', f'{out_dir}/no_caption.mp4'])
+    if CaptionExt.SRT in caption_exts:
+        caption_file = f'{out_dir}/{caption_name}.srt'
+    elif CaptionExt.VTT in caption_exts:
+        caption_file = f'{out_dir}/{caption_name}.vtt'
+    else:
+        caption_file = None
+
+    if caption_file is None:
+        subprocess.run(
+            ['mv', f'{out_dir}/no_caption.mp4', f'{out_dir}/{video_name}']
+        )
+    else:
+        add_subtitle_to_video(
+            f'{out_dir}/no_caption.mp4',
+            caption_file,
+            f'{out_dir}/{video_name}',
+        )
+        subprocess.run(['rm', '-rf', f'{out_dir}/no_caption.mp4'])
 
     print(f'Successfully saved a video to {out_dir}.')
 
@@ -84,12 +98,12 @@ def download_and_save_video(
 def download_and_save_audio(
     video_id: str,
     out_dir: str | None = None,
-    with_caption=True,
+    caption_exts={CaptionExt.SRT},
     make_metadata=True,
     file_name=None,
 ):
     audio_name = 'audio.mp3' if file_name is None else f'{file_name}.mp3'
-    caption_name = 'caption.srt' if file_name is None else f'{file_name}.srt'
+    caption_name = 'caption' if file_name is None else file_name
 
     try:
         url = f'https://www.youtube.com/watch?v={video_id}'
@@ -114,10 +128,12 @@ def download_and_save_audio(
     if success is False:
         return False
 
-    if with_caption is False:
+    if len(caption_exts) == 0:
         return True
 
-    success = download_caption(video_id, f'{out_dir}/{caption_name}')
+    success = download_caption(
+        video_id, f'{out_dir}/{caption_name}', caption_exts
+    )
     if success is False:
         return False
 

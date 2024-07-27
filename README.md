@@ -61,7 +61,7 @@ $ python src/main.py <YOUTUBE_ID> -r 720p
 ### Downloading audio
 
 ```
-$ python src/main.py <YOUTUBE_ID> -m audio -o music -c 0 --metadata false -f favorite_song
+$ python src/main.py <YOUTUBE_ID> -m audio -o music --srt 0 --metadata false -f favorite_song
 ```
 
 This command saves the audio data of <YOUTUBE_ID> to `outputs/music/favorite_song.mp3`. No video, captions, or url.txt.

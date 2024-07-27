@@ -1,19 +1,21 @@
 import whisper  # type: ignore
-from captions import CaptionData, caption_to_srt
+from captions import CaptionData, save_caption
 
 
-def generate_caption(
+def generate_transcribed_caption(
     audio_path: str,
     model_name='base',
     translate_to: str | None = None,
+    save_path: str | None = None,
+    verbose=True,
 ):
     model = whisper.load_model(model_name)
     if translate_to is None:
-        result = model.transcribe(audio_path, verbose=True)
+        result = model.transcribe(audio_path, verbose=verbose)
     else:
         # XXX: Whisper cannot translate English to other language
         result = model.transcribe(
-            audio_path, task='translate', language=translate_to, verbose=True
+            audio_path, task='translate', language=translate_to, verbose=verbose
         )
 
     segments = result['segments']
@@ -29,17 +31,10 @@ def generate_caption(
         for (i, item) in enumerate(segments)
     ]
 
-    return caption
+    if save_path is None:
+        return caption
 
-
-def generate_srt(
-    audio_path: str,
-    save_path: str,
-    model_name='base',
-    translate_to: str | None = None,
-):
-    caption = generate_caption(audio_path, model_name, translate_to)
-    caption_to_srt(caption, save_path)
+    save_caption(caption, save_path)
 
 
 if __name__ == '__main__':
@@ -48,7 +43,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'path',
-        help='path for audio file and output srt file',
+        help='path for audio file and output caption file',
     )
     parser.add_argument(
         '--model',
@@ -57,8 +52,8 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
 
-    generate_srt(
+    generate_transcribed_caption(
         f'outputs/{args.path}/audio.mp3',  # default download file_name
-        f'outputs/{args.path}/whisper.srt',
         model_name=args.model,
+        save_path=f'outputs/{args.path}/whisper.vtt',
     )
