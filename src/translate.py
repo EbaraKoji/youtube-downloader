@@ -113,6 +113,33 @@ def create_translated_srt(
 
     caption_to_srt(translated_caption, save_path)
 
+
+def combine_captions(cap_1: list[CaptionData], cap_2: list[CaptionData]):
+    if len(cap_1) != len(cap_2):
+        raise ValueError('both captions should be the same index length.')
+
+    new_cap: list[CaptionData] = [
+        {
+            **item_1,
+            'text': item_1['text'] + '\n' + item_2['text'],
+        }
+        for (item_1, item_2) in zip(cap_1, cap_2)
+    ]
+
+    return new_cap
+
+
+def combine_translated_srt(
+    srt_path_1: str,
+    srt_path_2: str,
+    save_path: str,
+):
+    cap_1 = convert_srt(srt_path_1)
+    cap_2 = convert_srt(srt_path_2)
+    new_cap = combine_captions(cap_1, cap_2)
+    caption_to_srt(new_cap, save_path)
+
+
 if __name__ == '__main__':
     import argparse
 
