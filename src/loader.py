@@ -4,9 +4,9 @@ import subprocess
 from captions import (
     CaptionExt,
     add_subtitle_to_video,
-    caption_to_sentences,
     download_caption,
     save_caption,
+    word_timestamp_to_caption,
 )
 from pytube import YouTube  # type: ignore
 from pytube.exceptions import RegexMatchError  # type: ignore
@@ -66,15 +66,11 @@ def download_and_save_video(
     # transcribe caption from audio
     # TODO: add transcribe config(model_name, etc.)
     if transcribe is True:
-        transcribed_caption = generate_transcribed_caption(
-            f'{out_dir}/{audio_name}',
-            save_path=f'{out_dir}/transcribe_raw.vtt',
+        _, word_timestamps = generate_transcribed_caption(
+            f'{out_dir}/{audio_name}'
         )
-        trimmed_caption = caption_to_sentences(transcribed_caption)
-        save_caption(
-            trimmed_caption,
-            f'{out_dir}/transcribe.vtt',
-        )
+        caption = word_timestamp_to_caption(word_timestamps)
+        save_caption(caption, f'{out_dir}/transcribe.vtt')
 
     # translate caption
     if transcribe is True and translate is True:

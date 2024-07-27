@@ -1,6 +1,13 @@
 # Sample srt is downloaded from https://www.youtube.com/watch?v=qWVTjMsv7AE.
 
-from src.captions import CaptionData, caption_to_sentences, load_caption_file
+import json
+
+from src.captions import (
+    CaptionData,
+    caption_to_sentences,
+    load_caption_file,
+    word_timestamp_to_caption,
+)
 
 
 def test_load_srt() -> None:
@@ -84,3 +91,20 @@ def test_caption_to_sentences() -> None:
         'text': expected_text,
     }
     assert converted_caption[1] == expected
+
+
+def test_word_timestamp_to_caption() -> None:
+    with open('tests/sample_wt.json', 'r') as f:
+        wt = json.loads(f.read())
+
+    caption = word_timestamp_to_caption(wt)
+
+    expected_text = 'In 2017, 28 years after the web was conceived, certain burners Lee wrote about three trends that worried him.'
+    expected = {
+        'index': 3,
+        'start': 5.74,
+        'end': 13.3,
+        'duration': 7.56,
+        'text': expected_text,
+    }
+    assert caption[2] == expected
