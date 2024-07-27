@@ -9,9 +9,6 @@ from captions import (
     load_caption_file,
     save_caption,
 )
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 class DeeplResponse(TypedDict):
@@ -93,10 +90,10 @@ def translate_captions(
 def create_translated_caption(
     file_path: str,
     save_path: str,
+    deepl_api_key: str,
     trim_caption_to_sentences=True,
     source_lang='EN',
     target_lang='JA',
-    deepl_api_key=os.environ.get('DEEPL_API_KEY'),
     num_batches=500,
 ):
     caption = load_caption_file(file_path)
@@ -143,6 +140,10 @@ def combine_translated_captions(
 if __name__ == '__main__':
     import argparse
 
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'path',
@@ -153,4 +154,5 @@ if __name__ == '__main__':
     create_translated_caption(
         f'outputs/{args.path}/whisper.vtt',  # need srt file with puncts for caption_to_sentences!
         f'outputs/{args.path}/translated.vtt',
+        deepl_api_key=os.environ.get('DEEPL_API_KEY', ''),
     )

@@ -31,10 +31,10 @@ def generate_transcribed_caption(
         for (i, item) in enumerate(segments)
     ]
 
-    if save_path is None:
-        return caption
-
-    save_caption(caption, save_path)
+    if save_path is not None:
+        save_caption(caption, save_path)
+        
+    return caption
 
 
 if __name__ == '__main__':

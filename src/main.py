@@ -1,9 +1,13 @@
 import argparse
+import os
 from distutils.util import strtobool  # type: ignore
 
-from clients import setup_default_clients
-from loader import download_and_save_audio, download_and_save_video
 from captions import CaptionExt
+from clients import setup_default_clients
+from dotenv import load_dotenv
+from loader import download_and_save_video
+
+load_dotenv()
 
 parser = argparse.ArgumentParser()
 
@@ -68,6 +72,20 @@ parser.add_argument(
     default=None,
     required=False,
 )
+parser.add_argument(
+    '--transcribe',
+    help='transcribe caption file name',
+    default=0,
+    type=strtobool,
+    required=False,
+)
+parser.add_argument(
+    '--translate',
+    help='translate caption file name',
+    default=0,
+    type=strtobool,
+    required=False,
+)
 args = parser.parse_args()
 
 setup_default_clients()
@@ -85,22 +103,16 @@ if bool(args.vtt) is True:
 if bool(args.txt) is True:
     exts.add(CaptionExt.TXT)
 
-if args.mode == 'video':
-    download_and_save_video(
-        video_id=args.video_id,
-        resolutions=resolutions,
-        out_dir=args.output,
-        caption_exts=exts,
-        make_metadata=bool(args.metadata),
-        file_name=args.filename,
-    )
-elif args.mode == 'audio':
-    download_and_save_audio(
-        video_id=args.video_id,
-        out_dir=args.output,
-        caption_exts=exts,
-        make_metadata=bool(args.metadata),
-        file_name=args.filename,
-    )
-else:
-    raise ValueError('args.mode should be "video" or "audio".')
+
+download_and_save_video(
+    video_id=args.video_id,
+    mode=args.mode,
+    resolutions=resolutions,
+    out_dir=args.output,
+    caption_exts=exts,
+    make_metadata=bool(args.metadata),
+    file_name=args.filename,
+    transcribe=bool(args.transcribe),
+    translate=bool(args.translate),
+    deepl_api_key=os.environ.get('DEEPL_API_KEY'),
+)
