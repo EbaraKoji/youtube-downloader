@@ -9,6 +9,10 @@ from captions import (
     load_caption_file,
     save_caption,
 )
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import PromptTemplate
+from langchain_core.pydantic_v1 import BaseModel, Field
+from langchain_google_genai import GoogleGenerativeAI
 
 
 class DeeplResponse(TypedDict):
@@ -44,6 +48,57 @@ def deepl_translate(
         'status_code': res.status_code,
         'translations': [item['text'] for item in res.json()['translations']],
     }
+
+
+class TranslateInput(BaseModel):
+    texts: list[str] = Field(description='list of text to translate')
+    source_lang: str = Field(description='source language of provided texts')
+    target_lang: str = Field(description='target language to translate into')
+
+
+class TranslateOutput(BaseModel):
+    translations: list[str] = Field(description='list of translated text')
+
+
+def gemini_translate(
+    texts: str | list[str],
+    source_lang='English',
+    target_lang='Japanese',
+    api_key=os.environ.get('GOOGLE_GENERATIVE_LANGUAGE_API_KEY'),
+):
+    llm = GoogleGenerativeAI(
+        model='gemini-1.0-pro',
+        temperature=0,
+        google_api_key=api_key,
+    )
+    parser = JsonOutputParser(pydantic_object=TranslateOutput)
+    template = """Translate the provided texts from {source_lang} to {target_lang}.
+Provided texts are the transcript of a video splitted into sentences, so translate them taking into consideration their context.
+{format_instructions}
+texts: {texts}
+"""
+
+    prompt = PromptTemplate(
+        template=template,
+        input_variables=['texts', 'source_lang', 'target_lang'],
+        partial_variables={
+            'format_instructions': parser.get_format_instructions()
+        },
+    )
+
+    chain = prompt | llm | parser
+
+    try:
+        result = chain.invoke(
+            {
+                'texts': texts,
+                'source_lang': source_lang,
+                'target_lang': target_lang,
+            }
+        )
+        return {'status_code': 200, 'translations': result['translations']}
+    except BaseException as e:
+        return {'status_code': 500, 'translations': None, 'error': e}
 
 
 def translate_captions(

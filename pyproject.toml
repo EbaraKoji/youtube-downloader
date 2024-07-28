@@ -15,6 +15,9 @@ dependencies = [
     "spacy>=3.7.5",
     "numpy==1.26.4",
     "en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl",
+    "langchain>=0.2.11",
+    "langchain-core>=0.2.24",
+    "langchain-google-genai>=1.0.8",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
