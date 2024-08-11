@@ -73,15 +73,22 @@ parser.add_argument(
     required=False,
 )
 parser.add_argument(
+    '--download_only',
+    help='whether to download_only',
+    default=0,
+    type=strtobool,
+    required=False,
+)
+parser.add_argument(
     '--transcribe',
-    help='transcribe caption file name',
+    help='whether to transcribe caption',
     default=0,
     type=strtobool,
     required=False,
 )
 parser.add_argument(
     '--translate',
-    help='translate caption file name',
+    help='whether to translate caption',
     default=0,
     type=strtobool,
     required=False,
@@ -112,6 +119,7 @@ download_and_save_video(
     caption_exts=exts,
     make_metadata=bool(args.metadata),
     file_name=args.filename,
+    download_only=bool(args.download_only),
     transcribe=bool(args.transcribe),
     translate=bool(args.translate),
     deepl_api_key=os.environ.get('DEEPL_API_KEY'),

@@ -79,3 +79,43 @@ def download_video(
         filename=filename,
     )
     return True
+
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--dir',
+        '-d',
+        help='The name of target dir',
+    )
+    parser.add_argument(
+        '--vin',
+        help='The name of input video file',
+        default='video.mp4',
+        required=False,
+    )
+    parser.add_argument(
+        '--vout',
+        help='The name of output video file',
+        default='video.mp4',
+        required=False,
+    )
+    parser.add_argument(
+        '--audio',
+        '-a',
+        help='The name of audio file',
+        default='audio.mp3',
+        required=False,
+    )
+
+    args = parser.parse_args()
+
+    combine_audio(
+        f'{args.dir}/{args.vin}',
+        f'{args.dir}/{args.audio}',
+        f'{args.dir}/{args.vout}',
+        fps=60,
+    )
+    subprocess.run(['rm', '-rf', f'{args.dir}/{args.vin}'])
