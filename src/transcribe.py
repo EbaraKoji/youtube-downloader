@@ -55,8 +55,15 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'path',
-        help='path for audio file and output caption file',
+        'dir',
+        '-d',
+        help='target dir of audio file and output caption file',
+    )
+    parser.add_argument(
+        'audio',
+        '-a',
+        help='audio file name',
+        default='audio.mp3',
     )
     parser.add_argument(
         '--model',
@@ -66,7 +73,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     generate_transcribed_caption(
-        f'outputs/{args.path}/audio.mp3',  # default download file_name
+        f'{args.dir}/{args.audio}',  # default download file_name
         model_name=args.model,
-        save_path=f'outputs/{args.path}/whisper.vtt',
+        save_path=f'{args.dir}/whisper.vtt',
     )

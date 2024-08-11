@@ -146,13 +146,14 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'path',
-        help='path for caption file and output translated caption file',
+        'dir',
+        '-d',
+        help='target dir of caption file',
     )
     args = parser.parse_args()
 
     create_translated_caption(
-        f'outputs/{args.path}/whisper.vtt',  # need srt file with puncts for caption_to_sentences!
-        f'outputs/{args.path}/translated.vtt',
+        f'{args.dir}/whisper.vtt',  # need srt file with puncts for caption_to_sentences!
+        f'{args.dir}/translated.vtt',
         deepl_api_key=os.environ.get('DEEPL_API_KEY', ''),
     )

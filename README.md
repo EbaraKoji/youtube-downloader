@@ -59,6 +59,13 @@ pattern = r"%s=function\(\w\){[a-z=\.\(\"\)]*;((\w+\.\w+\([\w\"\'\[\]\(\)\.\,\s]
 $ python src/main.py <YOUTUBE_ID>
 ```
 
+### Downloading video(without combining audio)
+
+Since combining a video and its audio with ffmpeg is compute-intensive, you can skip the procedure with --download_only flag.
+```
+$ python src/main.py <YOUTUBE_ID> --download_only 1
+```
+
 ### Specifing resolution
 
 ```
