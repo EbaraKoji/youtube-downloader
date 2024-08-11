@@ -43,6 +43,13 @@ function_patterns = [
     ]
 ```
 
+[UPDATE: 2024/08/11]
+[issues](https://github.com/pytube/pytube/issues/2006#issuecomment-2278758727)
+```
+#pattern = r"%s=function\(\w\){[a-z=\.\(\"\)]*;(.*);(?:.+)}" % name
+pattern = r"%s=function\(\w\){[a-z=\.\(\"\)]*;((\w+\.\w+\([\w\"\'\[\]\(\)\.\,\s]*\);)+)(?:.+)}" % name
+```
+
 
 ## Usage
 
