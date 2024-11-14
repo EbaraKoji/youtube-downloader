@@ -115,6 +115,8 @@ python-dotenv==1.0.1
     # via youtube-downloader
 pytube==15.0.0
     # via youtube-downloader
+pytubefix==8.3.2
+    # via youtube-downloader
 regex==2024.5.15
     # via tiktoken
 requests==2.32.3

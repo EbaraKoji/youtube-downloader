@@ -8,8 +8,8 @@ from captions import (
     save_caption,
     word_timestamp_to_caption,
 )
-from pytube import YouTube  # type: ignore
-from pytube.exceptions import RegexMatchError  # type: ignore
+from pytubefix import YouTube  # type: ignore
+from pytubefix.exceptions import RegexMatchError  # type: ignore
 from transcribe import generate_transcribed_caption
 from translate import create_translated_caption
 from videos import combine_audio, download_audio, download_video
